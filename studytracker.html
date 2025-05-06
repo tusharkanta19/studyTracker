@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Tracker</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    h1 { text-align: center; }
+    form { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; margin: 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    label { display: block; margin: 10px 0 5px; }
+    input, select, textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
+    button { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+    table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Full Stack Study Tracker</h1>
+  <form id="study-form">
+    <label for="date">Date:</label>
+    <input type="date" id="date" required>
+
+    <label for="course">Course / Topic:</label>
+    <input type="text" id="course" required>
+
+    <label for="time">Time Studied (hrs):</label>
+    <input type="number" id="time" step="0.1" required>
+
+    <label for="completed">Completed?</label>
+    <select id="completed">
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
+
+    <label for="remembered">Retention (%):</label>
+    <input type="range" id="remembered" min="0" max="100" value="50">
+    <span id="retention-value">50%</span>
+
+    <button type="submit">Add Entry</button>
+  </form>
+
+  <table id="entries">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Course</th>
+        <th>Time (hrs)</th>
+        <th>Completed</th>
+        <th>Retention</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('study-form');
+    const entriesTable = document.querySelector('#entries tbody');
+    const retentionSlider = document.getElementById('remembered');
+    const retentionValue = document.getElementById('retention-value');
+
+    function loadEntries() {
+      const entries = JSON.parse(localStorage.getItem('studyEntries')) || [];
+      entriesTable.innerHTML = '';
+      entries.forEach(entry => addEntryToTable(entry));
+    }
+
+    function addEntryToTable(entry) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${entry.date}</td>
+        <td>${entry.course}</td>
+        <td>${entry.time}</td>
+        <td>${entry.completed}</td>
+        <td>${entry.remembered}%</td>
+      `;
+      entriesTable.appendChild(row);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const entry = {
+        date: document.getElementById('date').value,
+        course: document.getElementById('course').value,
+        time: document.getElementById('time').value,
+        completed: document.getElementById('completed').value,
+        remembered: document.getElementById('remembered').value
+      };
+
+      const entries = JSON.parse(localStorage.getItem('studyEntries')) || [];
+      entries.push(entry);
+      localStorage.setItem('studyEntries', JSON.stringify(entries));
+      addEntryToTable(entry);
+      form.reset();
+      retentionValue.textContent = '50%';
+    });
+
+    retentionSlider.addEventListener('input', () => {
+      retentionValue.textContent = retentionSlider.value + '%';
+    });
+
+    loadEntries();
+  </script>
+</body>
+</html>
+
